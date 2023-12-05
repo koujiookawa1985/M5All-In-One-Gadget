@@ -8,7 +8,7 @@ MdMusicPlayer mmplay;
 MdMeasureDistance mmdist;
 MdDateTime mdtime;
 
-const char* g_str_orange[] = {
+const char *g_str_orange[] = {
     COMMON_ORANGE0_IMG_PATH,
     COMMON_ORANGE1_IMG_PATH,
     COMMON_ORANGE2_IMG_PATH,
@@ -21,7 +21,7 @@ const char* g_str_orange[] = {
     COMMON_ORANGE9_IMG_PATH,
 };
 
-const char* g_str_blue[] = {
+const char *g_str_blue[] = {
     COMMON_BLUE0_IMG_PATH,
     COMMON_BLUE1_IMG_PATH,
     COMMON_BLUE2_IMG_PATH,
@@ -34,17 +34,17 @@ const char* g_str_blue[] = {
     COMMON_BLUE9_IMG_PATH,
 };
 
-void AppControl::setBtnAFlg(bool flg) //左ボタン
+void AppControl::setBtnAFlg(bool flg) // 左ボタン
 {
     m_flag_btnA_is_pressed = flg;
 }
 
-void AppControl::setBtnBFlg(bool flg) //中ボタン
+void AppControl::setBtnBFlg(bool flg) // 中ボタン
 {
     m_flag_btnB_is_pressed = flg;
 }
 
-void AppControl::setBtnCFlg(bool flg) //右ボタン
+void AppControl::setBtnCFlg(bool flg) // 右ボタン
 {
     m_flag_btnC_is_pressed = flg;
 }
@@ -94,19 +94,18 @@ void AppControl::setFocusState(FocusState fs)
 
 void AppControl::displayTitleInit()
 {
-    mlcd.displayJpgImageCoordinate(TITLE_IMG_PATH, 0, 0);
+    mlcd.displayJpgImageCoordinate(TITLE_IMG_PATH, TITLE_X_CRD, TITLE_Y_CRD);
 }
 
 void AppControl::displayMenuInit()
 {
-    mlcd.displayJpgImageCoordinate(MENU_WBGT_IMG_PATH,0,0);
-    mlcd.displayJpgImageCoordinate(MENU_MUSIC_IMG_PATH,0,50);
-    mlcd.displayJpgImageCoordinate(MENU_MEASURE_IMG_PATH,0,100);
-    mlcd.displayJpgImageCoordinate(MENU_DATE_IMG_PATH,0,150);
-    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_UP_IMG_PATH,0,200);
-    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_DOWN_IMG_PATH,240,200);
-    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_DECIDE_IMG_PATH,120,200);
-
+    mlcd.displayJpgImageCoordinate(MENU_WBGT_IMG_PATH, MENU_WBGT_X_CRD, MENU_WBGT_Y_CRD);
+    mlcd.displayJpgImageCoordinate(MENU_MUSIC_IMG_PATH, MENU_MUSIC_X_CRD, MENU_MUSIC_Y_CRD);
+    mlcd.displayJpgImageCoordinate(MENU_MEASURE_IMG_PATH, MENU_MEASURE_X_CRD, MENU_MEASURE_Y_CRD);
+    mlcd.displayJpgImageCoordinate(MENU_DATE_IMG_PATH, MENU_DATE_X_CRD, MENU_DATE_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_UP_IMG_PATH, MENU_UP_BTN_X_CRD, MENU_UP_BTN_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_DOWN_IMG_PATH, MENU_DOWN_BTN_X_CRD, MENU_DOWN_BTN_Y_CRD);
+    mlcd.displayJpgImageCoordinate(COMMON_BUTTON_DECIDE_IMG_PATH, MENU_DECIDE_BTN_X_CRD, MENU_DECIDE_BTN_Y_CRD);
 }
 
 void AppControl::focusChangeImg(FocusState current_state, FocusState next_state)
@@ -161,11 +160,14 @@ void AppControl::controlApplication()
 {
     mmplay.init();
 
-    while (1) {
+    while (1)
+    {
 
-        switch (getState()) {
+        switch (getState())
+        {
         case TITLE:
-            switch (getAction()) {
+            switch (getAction())
+            {
             case ENTRY:
                 /*
                 ** まずはここにタイトル画面の表示処理を呼び出してみよう。
@@ -173,20 +175,21 @@ void AppControl::controlApplication()
                 ** この関数の中身はまだ何もないので、この関数にタイトル画面表示処理を書いてみよう。
                 */
                 displayTitleInit();
-                setStateMachine(TITLE,DO);
+                setStateMachine(TITLE, DO);
 
                 break;
 
             case DO:
-            if(m_flag_btnA_is_pressed || m_flag_btnB_is_pressed || m_flag_btnC_is_pressed){
-                setStateMachine(TITLE,EXIT);
-                setBtnAllFlgFalse();
-            }
+                if (m_flag_btnA_is_pressed || m_flag_btnB_is_pressed || m_flag_btnC_is_pressed)
+                {
+                    setStateMachine(TITLE, EXIT);
+                    setBtnAllFlgFalse();
+                }
 
                 break;
 
             case EXIT:
-            setStateMachine(MENU,ENTRY);
+                setStateMachine(MENU, ENTRY);
                 break;
 
             default:
@@ -197,14 +200,48 @@ void AppControl::controlApplication()
 
         case MENU:
 
-            switch (getAction()) {
+            switch (getAction())
+            {
             case ENTRY:
-                setStateMachine(MENU,DO);
+
+                displayMenuInit();
+                mlcd.displayJpgImageCoordinate(MENU_WBGT_FOCUS_IMG_PATH, 0, 0);
+                setStateMachine(MENU, DO);
 
                 break;
 
             case DO:
-            displayMenuInit();
+                if (m_flag_btnA_is_pressed)
+                {
+                    switch (getFocusState())
+                    {
+                    case MENU_WBGT:
+                        focusChangeImg(MENU_WBGT, MENU_DATE);
+                        mlcd.displayJpgImageCoordinate(MENU_DATE_FOCUS_IMG_PATH, 0, 150);
+                        setBtnAllFlgFalse();
+                        
+                        break;
+
+                    case MENU_DATE:
+                        focusChangeImg(MENU_DATE, MENU_MEASURE);
+                        mlcd.displayJpgImageCoordinate(MENU_MEASURE_FOCUS_IMG_PATH, 0, 100);
+                        setBtnAllFlgFalse();
+                        break;
+
+                    case MENU_MEASURE:
+                        focusChangeImg(MENU_MEASURE, MENU_MUSIC);
+                        mlcd.displayJpgImageCoordinate(MENU_MUSIC_FOCUS_IMG_PATH, 0, 50);
+                        setBtnAllFlgFalse();
+                        break;
+
+                    case MENU_MUSIC:
+                        focusChangeImg(MENU_MUSIC, MENU_WBGT);
+                        mlcd.displayJpgImageCoordinate(MENU_WBGT_FOCUS_IMG_PATH, 0, 0);
+                        break;
+                    }
+                    setBtnAllFlgFalse();
+                    break;
+                }
 
                 break;
 
@@ -218,7 +255,8 @@ void AppControl::controlApplication()
 
         case WBGT:
 
-            switch (getAction()) {
+            switch (getAction())
+            {
             case ENTRY:
 
                 break;
@@ -236,7 +274,8 @@ void AppControl::controlApplication()
             break;
 
         case MUSIC_STOP:
-            switch (getAction()) {
+            switch (getAction())
+            {
             case ENTRY:
                 break;
 
@@ -254,7 +293,8 @@ void AppControl::controlApplication()
 
         case MUSIC_PLAY:
 
-            switch (getAction()) {
+            switch (getAction())
+            {
             case ENTRY:
                 break;
 
@@ -272,7 +312,8 @@ void AppControl::controlApplication()
 
         case MEASURE:
 
-            switch (getAction()) {
+            switch (getAction())
+            {
             case ENTRY:
                 break;
 
@@ -290,7 +331,8 @@ void AppControl::controlApplication()
 
         case DATE:
 
-            switch (getAction()) {
+            switch (getAction())
+            {
             case ENTRY:
                 break;
 
